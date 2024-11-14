@@ -30,21 +30,25 @@ velocity = initial_velocity
 altitude = 0.0
 time = 0.0
 
-# Simulation loop
-while time <= total_time and altitude >= 0:
-    # Calculate the drag force
+# Function to calculate derivatives
+def derivatives(altitude, velocity):
     drag_force = 0.5 * rho * velocity**2 * drag_coefficient * cross_sectional_area
-
-    # Calculate the net force
     weight = mass * g
     net_force = thrust - weight - drag_force
-
-    # Calculate acceleration (F = ma)
     acceleration = net_force / mass
+    return velocity, acceleration
 
-    # Update velocity and altitude using Euler's method
-    velocity += acceleration * dt
-    altitude += velocity * dt
+# Simulation loop using RK4
+while time <= total_time and altitude >= 0:
+    # RK4 coefficients for altitude and velocity
+    k1_v, k1_a = derivatives(altitude, velocity)
+    k2_v, k2_a = derivatives(altitude + 0.5 * dt * k1_v, velocity + 0.5 * dt * k1_a)
+    k3_v, k3_a = derivatives(altitude + 0.5 * dt * k2_v, velocity + 0.5 * dt * k2_a)
+    k4_v, k4_a = derivatives(altitude + dt * k3_v, velocity + dt * k3_a)
+
+    # Update velocity and altitude using the weighted average of the slopes
+    velocity += (dt / 6.0) * (k1_a + 2 * k2_a + 2 * k3_a + k4_a)
+    altitude += (dt / 6.0) * (k1_v + 2 * k2_v + 2 * k3_v + k4_v)
 
     # Store the current state
     times.append(time)
@@ -61,14 +65,14 @@ plt.subplot(1, 2, 1)
 plt.plot(times, altitudes, label="Altitude (m)", color="b")
 plt.xlabel("Time (s)")
 plt.ylabel("Altitude (m)")
-plt.title("Rocket Altitude over Time")
+plt.title("Rocket Altitude over Time (RK4)")
 plt.grid()
 
 plt.subplot(1, 2, 2)
 plt.plot(times, velocities, label="Velocity (m/s)", color="r")
 plt.xlabel("Time (s)")
 plt.ylabel("Velocity (m/s)")
-plt.title("Rocket Velocity over Time")
+plt.title("Rocket Velocity over Time (RK4)")
 plt.grid()
 
 plt.tight_layout()
