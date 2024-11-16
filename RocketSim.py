@@ -35,45 +35,66 @@ class RocketSim:
         self.altitudes = []
         self.velocities = []
 
-    def dhdt(self, v: float):
-        return v
-
+    # Helper method to calculate drag forces
     def drag(self, v: float):
         return 0.5 * self.rho * (v**2) * self.C_D * self.A
+
+    # Define f(t, h, v) to compute the velocity (dh/dt)
+    def f(self, t: float, h: float, v: float):
+        # simply returns v
+        return v
     
-    def acceleration(self, v: float):
-        # calculate individual forces and then net force
+    # Define g(t, h, v) to compute the acceleration (dv/dt)
+    def g(self, t: float, h: float, v: float):
         F_D = self.drag(v)
         F_G = self.m * self.g
         F_net = self.thrust - F_G - F_D
 
         return F_net / self.m
     
-    def rk4(self, v_i, h_i):
-        # calculate slope 1
-        s_1h = v_i
-        s_1v = self.acceleration(v_i)
+    def rk4_step(self, t: float, h: float, v: float):
+        # Performs a single Runge-Kutta step
 
-        # calculate slope 2
-        s_2h = v_i + 0.5 * s_1v * self.dt
-        s_2v = self.acceleration(v_i + 0.5 * s_1v * self.dt)
+        # Slope 1 Calculation
+        s_1h = self.dt * self.f(t, h, v)
+        s_1v = self.dt * self.g(t, h, v)
 
-        # calculate slope 3
-        s_3h = v_i + 0.5 * s_2v * self.dt
-        s_3v = self.acceleration( v_i + 0.5 * s_2v * self.dt)
+        # Slope 2 Calculation
+        s_2h = self.dt * 
+    
+    # def acceleration(self, v: float):
+    #     # calculate individual forces and then net force
+    #     F_D = self.drag(v)
+    #     F_G = self.m * self.g
+    #     F_net = self.thrust - F_G - F_D
 
-        # calculate slope 4
-        s_4h = v_i + 0.5 * s_3v * self.dt
-        s_4v = self.acceleration(v_i + 0.5 * s_3v * self.dt)
+    #     return F_net / self.m
+    
+    # def rk4(self, v_i, h_i):
+    #     # calculate slope 1
+    #     s_1h = v_i
+    #     s_1v = self.acceleration(v_i)
 
-        # update h, v using RK4 formula to the next step
-        h_new = h_i + (self.dt / 6.0) * (s_1h + 2 * s_2h + 2 * s_3h + s_4h)
-        v_new = v_i + (self.dt / 6.0) * (s_1v + 2 * s_2v + 2 * s_3v + s_4v)
+    #     # calculate slope 2
+    #     s_2h = v_i + 0.5 * s_1v * self.dt
+    #     s_2v = self.acceleration(v_i + 0.5 * s_1v * self.dt)
 
-        print("h_new: ", h_new)
-        print("v_new: ", v_new)
+    #     # calculate slope 3
+    #     s_3h = v_i + 0.5 * s_2v * self.dt
+    #     s_3v = self.acceleration( v_i + 0.5 * s_2v * self.dt)
 
-        return h_new, v_new
+    #     # calculate slope 4
+    #     s_4h = v_i + 0.5 * s_3v * self.dt
+    #     s_4v = self.acceleration(v_i + 0.5 * s_3v * self.dt)
+
+    #     # update h, v using RK4 formula to the next step
+    #     h_new = h_i + (self.dt / 6.0) * (s_1h + 2 * s_2h + 2 * s_3h + s_4h)
+    #     v_new = v_i + (self.dt / 6.0) * (s_1v + 2 * s_2v + 2 * s_3v + s_4v)
+
+    #     print("h_new: ", h_new)
+    #     print("v_new: ", v_new)
+
+    #     return h_new, v_new
     
 
     def run(self):
