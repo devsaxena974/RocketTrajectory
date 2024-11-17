@@ -14,21 +14,21 @@ class RocketSim:
                  T=50.0
                 ):
         # Initialize all of our constants
-        self.g = 9.81
-        self.rho = 0.80 # constant for now
+        self.G = np.float64(9.81)
+        self.rho = np.float64(1.2249) # constant for now
 
         # Rocket Parameters and Properties
-        self.m = m
-        self.thrust = thrust
-        self.C_D = C_D
-        self.A = A
-        self.v = v_0 # velocity
-        self.h = 0.0 # altitude
+        self.m = np.float64(m)
+        self.thrust = np.float64(thrust)
+        self.C_D = np.float64(C_D)
+        self.A = np.float64(A)
+        self.v = np.float64(v_0) # velocity
+        self.h = np.float64(0.0) # altitude
         self.theta = np.radians(theta) # launch angle (keep vertical)
 
         # Time Parameters
         self.dt = dt # change this to be dynamic
-        self.T = T # also change this duration of integration
+        self.T = np.float64(T) # also change this duration of integration
 
         # Initialize arrays to hold simulation data
         self.times = []
@@ -36,23 +36,26 @@ class RocketSim:
         self.velocities = []
 
     # Helper method to calculate drag forces
-    def drag(self, v: float):
+    def drag(self, v):
         return 0.5 * self.rho * (v**2) * self.C_D * self.A
 
     # Define f(t, h, v) to compute the velocity (dh/dt)
-    def f(self, t: float, h: float, v: float):
+    def f(self, t, h, v):
         # simply returns v
         return v
     
     # Define g(t, h, v) to compute the acceleration (dv/dt)
-    def g(self, t: float, h: float, v: float):
+    def g(self, t, h, v):
         F_D = self.drag(v)
-        F_G = self.m * self.g
+        F_G = self.m * self.G
         F_net = self.thrust - F_G - F_D
+
+        if((F_net / self.m) < self.G):
+            print(F_net / self.m)
 
         return F_net / self.m
     
-    def rk4_step(self, t: float, h: float, v: float):
+    def rk4_step(self, t, h, v):
         # Performs a single Runge-Kutta step
 
         # Slope 1 Calculation
@@ -60,58 +63,38 @@ class RocketSim:
         s_1v = self.dt * self.g(t, h, v)
 
         # Slope 2 Calculation
-        s_2h = self.dt * 
+        s_2h = self.dt * self.f((t+0.5*self.dt), (h+0.5*s_1h), (v+0.5*s_1v))
+        s_2v = self.dt * self.g((t+0.5*self.dt), (h+0.5*s_1h), (v+0.5*s_1v))
+
+        # Slope 3 Calculation
+        s_3h = self.dt * self.f((t+0.5*self.dt), (h+0.5*s_2h), (v+0.5*s_2v))
+        s_3v = self.dt * self.g((t+0.5*self.dt), (h+0.5*s_2h), (v+0.5*s_2v))
+
+        # Slope 4 Calculation
+        s_4h = self.dt * self.f((t+self.dt), (h+s_3h), (v+s_3v))
+        s_4v = self.dt * self.g((t+self.dt), (h+s_3h), (v+s_3v))
+
+        # Then, update t_{i+1}, h_{i+1}, v_{i+1}
+        t_1 = t + self.dt
+        h_1 = h + (1./6.) * (s_1h + 2*s_2h + 2*s_3h + s_4h)
+        v_1 = v + (1./6.) * (s_1v + 2*s_2v + 2*s_3v + s_4v)
+
+        return t_1, h_1, v_1
     
-    # def acceleration(self, v: float):
-    #     # calculate individual forces and then net force
-    #     F_D = self.drag(v)
-    #     F_G = self.m * self.g
-    #     F_net = self.thrust - F_G - F_D
-
-    #     return F_net / self.m
-    
-    # def rk4(self, v_i, h_i):
-    #     # calculate slope 1
-    #     s_1h = v_i
-    #     s_1v = self.acceleration(v_i)
-
-    #     # calculate slope 2
-    #     s_2h = v_i + 0.5 * s_1v * self.dt
-    #     s_2v = self.acceleration(v_i + 0.5 * s_1v * self.dt)
-
-    #     # calculate slope 3
-    #     s_3h = v_i + 0.5 * s_2v * self.dt
-    #     s_3v = self.acceleration( v_i + 0.5 * s_2v * self.dt)
-
-    #     # calculate slope 4
-    #     s_4h = v_i + 0.5 * s_3v * self.dt
-    #     s_4v = self.acceleration(v_i + 0.5 * s_3v * self.dt)
-
-    #     # update h, v using RK4 formula to the next step
-    #     h_new = h_i + (self.dt / 6.0) * (s_1h + 2 * s_2h + 2 * s_3h + s_4h)
-    #     v_new = v_i + (self.dt / 6.0) * (s_1v + 2 * s_2v + 2 * s_3v + s_4v)
-
-    #     print("h_new: ", h_new)
-    #     print("v_new: ", v_new)
-
-    #     return h_new, v_new
-    
-
+    # Run the RK4 Steps for the Desired Time Duration
     def run(self):
         # initialize time, altitude, and velocity
         t = 0.0
         v = self.v
         h = self.h
 
-        while (t <= self.T) and (h >= 0):
+        while (t <= self.T):
             self.times.append(t)
             self.altitudes.append(h)
             self.velocities.append(v)
 
-            h_new, v_new = self.rk4(v, h)
-
-            # update the time
-            t += self.dt
+            # Update variables based on rk4 output for next loop run
+            t, h, v = self.rk4_step(t, h, v)
 
         
     def visualize(self):
@@ -138,11 +121,33 @@ class RocketSim:
 
         
 if __name__ == '__main__':
-    rocket1 = RocketSim(m=50.0,
-                        thrust=2000.0,
+    '''
+        TEST with Saturn V Rocket Specifications (rocket1):
+        Mass = 2.8 million kg
+        Thrust = 34.5 million Newtons
+        A = 34.3589 m^2
+        C_D = we don't know (can only be found experimentally)
+    '''
+
+    '''
+        TEST with Diamondback model rocket with Estes A8 engine (rocket2):
+        Mass = 0.14175 kg
+        Thrust = 3.424 Newtons
+        A = 0.01151 m^2
+        C_D = 0.3
+    '''
+
+    rocket1 = RocketSim(m = 2800000.0,
+                        thrust = 34500000.0,
+                        C_D = 0.50,
+                        A = 34.3589,
+                        T = 1200.0)
+
+    rocket2 = RocketSim(m=0.14175,
+                        thrust=3.424,
                         C_D=0.8,
-                        A=0.03,
-                        T=5.0)
+                        A=0.0115,
+                        T=10.0)
     
-    rocket1.run()
-    rocket1.visualize()
+    rocket2.run()
+    rocket2.visualize()
