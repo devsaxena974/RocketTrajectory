@@ -16,12 +16,12 @@ def modelRocketTest1():
 def modelRocketTest2():
     rocket = RocketSim(m=0.05,
                         thrust=10.0,
-                        burn_time=2.0,
-                        burn_rate=0.01,
-                        fuel_mass=0.02,
+                        burn_time=1.0,
+                        burn_rate=0.00005,
+                        fuel_mass=0.0001,
                         C_D=0.75,
                         A=0.004,
-                        T=20.0)
+                        T=30.0)
     
     rocket.run()
     rocket.visualize()
@@ -40,9 +40,9 @@ def SaturnVTest():
     rocket.visualize()
 
 if __name__ == '__main__':
-    modelRocketTest1()
+    #modelRocketTest1()
 
     modelRocketTest2()
 
-    SaturnVTest()
+    #SaturnVTest()
     
