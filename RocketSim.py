@@ -4,10 +4,13 @@ import matplotlib.pyplot as plt
 class RocketSim:
     # Define constructor
     def __init__(self, 
-                 m: float, 
-                 thrust: float, 
-                 C_D: float, 
-                 A: float, 
+                 m, 
+                 thrust,
+                 burn_time,
+                 burn_rate,
+                 fuel_mass,
+                 C_D, 
+                 A, 
                  v_0=0.0, 
                  theta=90.0, 
                  dt=0.1, 
@@ -18,8 +21,11 @@ class RocketSim:
         self.rho = np.float64(1.2249) # constant for now
 
         # Rocket Parameters and Properties
-        self.m = np.float64(m)
+        self.m = np.float64(m) + np.float64(fuel_mass) # Accounts for rocket and fuel mass
         self.thrust = np.float64(thrust)
+        self.burn_time = burn_time # duration of rocket engine providing thrust
+        self.burn_rate = burn_rate # rate at which the fuel is consumed
+        self.fuel_mass = fuel_mass # mass of fuel carried by rocket
         self.C_D = np.float64(C_D)
         self.A = np.float64(A)
         self.v = np.float64(v_0) # velocity
@@ -46,12 +52,18 @@ class RocketSim:
     
     # Define g(t, h, v) to compute the acceleration (dv/dt)
     def g(self, t, h, v):
+        # Recalculate rocket mass based on fuel burn rate
+        if t <= self.burn_time:
+            self.m -= self.burn_rate * self.dt
+
         F_D = self.drag(v)
         F_G = self.m * self.G
-        F_net = self.thrust - F_G - F_D
 
-        if((F_net / self.m) < self.G):
-            print(F_net / self.m)
+        # Thrust only applied during engine burn time
+        if t <= self.burn_time:
+            F_net = self.thrust - F_G - F_D
+        else:
+            F_net = -F_G - F_D
 
         return F_net / self.m
     
@@ -88,10 +100,13 @@ class RocketSim:
         v = self.v
         h = self.h
 
-        while (t <= self.T):
+        while (t <= self.T) and (h >= -1.0):
             self.times.append(t)
             self.altitudes.append(h)
             self.velocities.append(v)
+
+            if v <= 0 and t > self.burn_time:
+                print("Apogee reached!")
 
             # Update variables based on rk4 output for next loop run
             t, h, v = self.rk4_step(t, h, v)
@@ -120,34 +135,37 @@ class RocketSim:
         plt.show()
 
         
-if __name__ == '__main__':
-    '''
-        TEST with Saturn V Rocket Specifications (rocket1):
-        Mass = 2.8 million kg
-        Thrust = 34.5 million Newtons
-        A = 34.3589 m^2
-        C_D = we don't know (can only be found experimentally)
-    '''
+# if __name__ == '__main__':
+#     '''
+#         TEST with Saturn V Rocket Specifications (rocket1):
+#         Mass = 2.8 million kg
+#         Thrust = 34.5 million Newtons
+#         A = 34.3589 m^2
+#         C_D = we don't know (can only be found experimentally)
+#     '''
 
-    '''
-        TEST with Diamondback model rocket with Estes A8 engine (rocket2):
-        Mass = 0.14175 kg
-        Thrust = 3.424 Newtons
-        A = 0.01151 m^2
-        C_D = 0.3
-    '''
+#     '''
+#         TEST with Diamondback model rocket with Estes A8 engine (rocket2):
+#         Mass = 0.14175 kg
+#         Thrust = 3.424 Newtons
+#         A = 0.01151 m^2
+#         C_D = 0.3
+#     '''
 
-    rocket1 = RocketSim(m = 2800000.0,
-                        thrust = 34500000.0,
-                        C_D = 0.50,
-                        A = 34.3589,
-                        T = 1200.0)
+#     # rocket1 = RocketSim(m = 2800000.0,
+#     #                     thrust = 34500000.0,
+#     #                     C_D = 0.50,
+#     #                     A = 34.3589,
+#     #                     T = 1200.0)
 
-    rocket2 = RocketSim(m=0.14175,
-                        thrust=3.424,
-                        C_D=0.8,
-                        A=0.0115,
-                        T=10.0)
+#     rocket2 = RocketSim(m=0.14175,
+#                         thrust=3.424,
+#                         burn_time=0.5,
+#                         burn_rate=0.0002,
+#                         fuel_mass=0.0001,
+#                         C_D=0.8,
+#                         A=0.0115,
+#                         T=10.0)
     
-    rocket2.run()
-    rocket2.visualize()
+#     rocket2.run()
+#     rocket2.visualize()
