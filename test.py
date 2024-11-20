@@ -3,17 +3,24 @@ from Rocket import Rocket
 from Simulation import Simulation
 
 def modelRocketTest1():
-    rocket = RocketSim(m=0.14175,
+    rocket = Rocket(m=0.14175,
                         thrust=3.424,
                         burn_time=0.5,
-                        burn_rate=0.0002,
                         fuel_mass=0.0001,
                         C_D=0.8,
-                        A=0.0115,
-                        T=10.0)
+                        A=0.0115)
     
-    rocket.run()
-    rocket.visualize()
+    sim = Simulation(rocket,
+                      h_0=0.0,
+                      v_0=0.0,
+                      theta=90.0,
+                      temp=288.15,
+                      pressure=101325.0,
+                      dt=0.01,
+                      T=4.0)
+    
+    sim.run()
+    sim.visualize()
 
 def modelRocketTest2():
     # First we create a rocket
@@ -40,20 +47,27 @@ def modelRocketTest2():
     
     
 def SaturnVTest():
-    rocket = RocketSim(m = 2800000.0,
+    SaturnV = Rocket(m = 2800000.0,
                         thrust = 34500000.0,
                         burn_time = 168.0,
-                        burn_rate = 1208.3,
                         fuel_mass = 203000.0,
                         C_D = 0.80,
-                        A = 34.3589,
-                        T = 1200.0)
+                        A = 34.3589)
     
-    rocket.run()
-    rocket.visualize()
+    sim = Simulation(SaturnV,
+                      h_0=0.0,
+                      v_0=0.0,
+                      theta=90.0,
+                      temp=288.15,
+                      pressure=101325.0,
+                      dt=0.01,
+                      T=12000.0)
+    
+    sim.run()
+    sim.visualize()
 
 if __name__ == '__main__':
-    #modelRocketTest1()
+    modelRocketTest1()
 
     modelRocketTest2()
 
