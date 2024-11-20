@@ -1,79 +1,196 @@
+'''
+    Simulation Class
+    State Variables:
+        Rocket = rocket
+        Initial Altitude = h_0 (m)
+        Initial Velocity = v_0 (m/s)
+        Launch Angle = theta (degrees)
+        Air Density = rho (kg/m^2)
+        Air Temperature = temp (Kelvin)
+        Barometric Air Pressure = pressure (Pascals)
+        Gravitational Constant = G (m/s^2)
+        Step size = dt (s)
+        Simulation End Time = T (s)
+
+        Array to hold times = times []
+        Array to hold altitudes = altitudes []
+        Array to hold velocities = velocities []
+
+    Functions:
+        air_density(self, t, h):
+            Calculates the air density in the atmosphere based on rocket altitude
+
+        drag(self, v):
+            Calculate drag forces on the rocket at current velocity
+
+        f(self, t, h, v):
+            Computes velocity (dh/dt)
+
+        g(self, t, h, v):
+            Computes acceleration (dv/dt)
+
+        rk4_step(self, t, h, v):
+            Performs a single Runge-Kutta 4th order step
+
+        run(self):
+            Runs the simulation using rk4_step for the entire time duration
+
+        visualize(self):
+            Generates plots using simulation data
+'''
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Constants
-g = 9.81  # gravitational acceleration (m/s^2)
-rho = 1.225  # air density at sea level (kg/m^3)
+from Rocket import Rocket
 
-# Rocket parameters (adjust these as needed)
-mass = 50.0  # rocket mass (kg)
-thrust = 2000.0  # constant thrust (N)
-drag_coefficient = 0.75  # drag coefficient
-cross_sectional_area = 0.03  # cross-sectional area (m^2)
-initial_velocity = 0.0  # initial velocity (m/s)
-launch_angle = 90.0  # launch angle in degrees (90 for vertical)
+class Simulation:
+    # Constructor
+    def __init__(   self,
+                    rocket: Rocket,
+                    h_0: float,
+                    v_0: float,
+                    theta: float,
+                    temp: float,
+                    pressure: float,
+                    dt: float,
+                    T: float
+                ):
+        
+        # Define all our state variables
+        self.rocket = rocket
+        self.h_0 = np.float64(h_0)
+        self.v_0 = np.float64(v_0)
+        self.theta = np.radians(theta)
+        self.temp = np.float64(temp)
+        self.pressure = np.float64(pressure)
+        self.rho = np.float64(0.0) # We will define later using a function
+        self.G = np.float64(9.8067)
 
-# Convert angle to radians
-launch_angle_rad = np.radians(launch_angle)
+        # Time parameters
+        self.dt = np.float64(dt)
+        self.T = np.float64(T)
+        
+        # Define arrays to hold simulation data
+        self.times = []
+        self.altitudes = []
+        self.velocities = []
 
-# Time parameters
-dt = 0.1  # time step (seconds)
-total_time = 50.0  # total simulation time (seconds)
+    # Function to calculate air density (rho) based on altitude
+    #   - uses the International Standard Atmosphere model
+    def air_density(self, h):
+        # First define some constants
+        air_gas_const = np.float64(287.05) # given in J/kg K)
+        temp_lapse_rate = np.float64(-0.0065) # rate at which temp decreases with altitude given in K/m
+        pressure_sea_lvl = self.pressure
+        temp_sea_lvl = self.temp
 
-# Lists to store simulation data
-times = []
-altitudes = []
-velocities = []
+        # Calculate the temperature at current altitude
+        cur_temp = temp_sea_lvl + (temp_lapse_rate * h)
 
-# Initial conditions
-velocity = initial_velocity
-altitude = 0.0
-time = 0.0
+        # Calculate pressure using barometric formula
+        exp = -self.G / (air_gas_const * temp_lapse_rate)
+        cur_pressure = pressure_sea_lvl * (cur_temp / temp_sea_lvl) ** exp
 
-# Function to calculate derivatives
-def derivatives(altitude, velocity):
-    drag_force = 0.5 * rho * velocity**2 * drag_coefficient * cross_sectional_area
-    weight = mass * g
-    net_force = thrust - weight - drag_force
-    acceleration = net_force / mass
-    return velocity, acceleration
+        # Calculate air density using ideal gas law
+        rho = cur_pressure / (air_gas_const * cur_temp)
 
-# Simulation loop using RK4
-while time <= total_time and altitude >= 0:
-    # RK4 coefficients for altitude and velocity
-    k1_v, k1_a = derivatives(altitude, velocity)
-    k2_v, k2_a = derivatives(altitude + 0.5 * dt * k1_v, velocity + 0.5 * dt * k1_a)
-    k3_v, k3_a = derivatives(altitude + 0.5 * dt * k2_v, velocity + 0.5 * dt * k2_a)
-    k4_v, k4_a = derivatives(altitude + dt * k3_v, velocity + dt * k3_a)
+        return rho
+    
+    # Function to calculate drag forces on the rocket
+    def drag(self, h, v):
+        # compute the air density value first
+        self.rho = self.air_density(h)
+        # now we can calculate the drag forces based on the formula
+        return 0.5 * self.rho * (v**2) * self.rocket.C_D * self.rocket.A
+    
+    # Define f(t, h, v) to compute the velocity (dh/dt)
+    def f(self, t, h, v):
+        # simply returns v
+        return v
 
-    # Update velocity and altitude using the weighted average of the slopes
-    velocity += (dt / 6.0) * (k1_a + 2 * k2_a + 2 * k3_a + k4_a)
-    altitude += (dt / 6.0) * (k1_v + 2 * k2_v + 2 * k3_v + k4_v)
+    # Define g(t, h, v) to compute the acceleration (dv/dt)
+    def g(self, t, h, v):
+        # Recalculate thrust based on time
+        self.rocket.thrust = self.rocket.thrust_at_time(t, dt=self.dt)
 
-    # Store the current state
-    times.append(time)
-    altitudes.append(altitude)
-    velocities.append(velocity)
+        F_D = self.drag(h, v)
+        F_G = self.rocket.m * self.G
 
-    # Update time
-    time += dt
+        # Thrust only applied during engine burn time
+        # if t <= self.burn_time:
+        #     F_net = self.thrust - F_G - F_D
+        # else:
+        #     F_net = -F_G - F_D
+        F_net = self.rocket.thrust - F_G - F_D
 
-# Plot altitude and velocity over time
-plt.figure(figsize=(12, 5))
+        return F_net / self.rocket.m
+    
+    def rk4_step(self, t, h, v):
+        # Performs a single Runge-Kutta 4th order method step
 
-plt.subplot(1, 2, 1)
-plt.plot(times, altitudes, label="Altitude (m)", color="b")
-plt.xlabel("Time (s)")
-plt.ylabel("Altitude (m)")
-plt.title("Rocket Altitude over Time (RK4)")
-plt.grid()
+        print(type(self.dt))
+        print(type(self.f(t, h, v)))
 
-plt.subplot(1, 2, 2)
-plt.plot(times, velocities, label="Velocity (m/s)", color="r")
-plt.xlabel("Time (s)")
-plt.ylabel("Velocity (m/s)")
-plt.title("Rocket Velocity over Time (RK4)")
-plt.grid()
+        # Slope 1 Calculation
+        s_1h = self.dt * self.f(t, h, v)
+        s_1v = self.dt * self.g(t, h, v)
 
-plt.tight_layout()
-plt.show()
+        # Slope 2 Calculation
+        s_2h = self.dt * self.f((t+0.5*self.dt), (h+0.5*s_1h), (v+0.5*s_1v))
+        s_2v = self.dt * self.g((t+0.5*self.dt), (h+0.5*s_1h), (v+0.5*s_1v))
+
+        # Slope 3 Calculation
+        s_3h = self.dt * self.f((t+0.5*self.dt), (h+0.5*s_2h), (v+0.5*s_2v))
+        s_3v = self.dt * self.g((t+0.5*self.dt), (h+0.5*s_2h), (v+0.5*s_2v))
+
+        # Slope 4 Calculation
+        s_4h = self.dt * self.f((t+self.dt), (h+s_3h), (v+s_3v))
+        s_4v = self.dt * self.g((t+self.dt), (h+s_3h), (v+s_3v))
+
+        # Then, update t_{i+1}, h_{i+1}, v_{i+1}
+        t_1 = t + self.dt
+        h_1 = h + (1./6.) * (s_1h + 2*s_2h + 2*s_3h + s_4h)
+        v_1 = v + (1./6.) * (s_1v + 2*s_2v + 2*s_3v + s_4v)
+
+        return t_1, h_1, v_1
+    
+    # Run the RK4 Steps for the Desired Time Duration
+    def run(self):
+        # initialize time, altitude, and velocity
+        t = 0.0
+        v = self.v_0
+        h = self.h_0
+
+        while (t <= self.T) and (h >= -1.0):
+            self.times.append(t)
+            self.altitudes.append(h)
+            self.velocities.append(v)
+
+            if v <= 0 and t > self.rocket.burn_time:
+                print("Apogee reached!")
+
+            # Update variables based on rk4 output for next loop run
+            t, h, v = self.rk4_step(t, h, v)
+
+    # Function to visualize output
+    def visualize(self):
+        print(self.times)
+        print(self.altitudes)
+        plt.figure(figsize=(12, 5))
+
+        plt.subplot(1, 2, 1)
+        plt.plot(self.times, self.altitudes, label="Altitude (m)", color="b")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Altitude (m)")
+        plt.title("Rocket Altitude over Time")
+        plt.grid()
+
+        plt.subplot(1, 2, 2)
+        plt.plot(self.times, self.velocities, label="Velocity (m/s)", color="r")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Velocity (m/s)")
+        plt.title("Rocket Velocity over Time")
+        plt.grid()
+
+        plt.tight_layout()
+        plt.show()

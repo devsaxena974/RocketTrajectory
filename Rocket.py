@@ -45,6 +45,8 @@ class Rocket:
         if t <= self.burn_time:
             # Reduce mass based on burn rate and time step
             self.m -= self.burn_rate * dt
+            fuel_left = max(0.0, self.fuel_mass - self.burn_rate * t)
+            return fuel_left
         else:
             # If t is past burn_time, fuel has been depleted
             return 0.0

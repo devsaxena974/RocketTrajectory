@@ -1,4 +1,6 @@
 from RocketSim import RocketSim
+from Rocket import Rocket
+from Simulation import Simulation
 
 def modelRocketTest1():
     rocket = RocketSim(m=0.14175,
@@ -14,17 +16,28 @@ def modelRocketTest1():
     rocket.visualize()
 
 def modelRocketTest2():
-    rocket = RocketSim(m=0.05,
+    # First we create a rocket
+    rocket = Rocket(m=0.05,
                         thrust=10.0,
                         burn_time=1.0,
-                        burn_rate=0.00005,
                         fuel_mass=0.0001,
                         C_D=0.75,
-                        A=0.004,
-                        T=30.0)
+                        A=0.004)
     
-    rocket.run()
-    rocket.visualize()
+    # Now we create a simulator
+    sim2 = Simulation(rocket,
+                      h_0=0.0,
+                      v_0=0.0,
+                      theta=90.0,
+                      temp=288.15,
+                      pressure=101325.0,
+                      dt=0.1,
+                      T=20.0)
+    
+    sim2.run()
+    sim2.visualize()
+    
+    
     
 def SaturnVTest():
     rocket = RocketSim(m = 2800000.0,
