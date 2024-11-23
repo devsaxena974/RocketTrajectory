@@ -4,22 +4,22 @@ import matplotlib.pyplot as plt
 from Simulation import Simulation
 from Rocket import Rocket
 
-# Calculate the local truncation error by estimating using different step sizes
-def truncation_error(t, h, v, sim: Simulation):
-    t_m, h_m, v_m = sim.rk4_step(t, h, v)
-    t_f, h_f, v_f = sim.rk4_step(t_m, h_m, v_m)
+# Analyze convergence of rk4 implementation using different dt values
+def analyze_convergence(dt_values):
 
-    _, h_next, v_next = sim.rk4_step(t, h, v)
+    # Helper method to calculate the local truncation error
+    def truncation_error(t, h, v, sim: Simulation):
+        t_m, h_m, v_m = sim.rk4_step(t, h, v)
+        t_f, h_f, v_f = sim.rk4_step(t_m, h_m, v_m)
 
-    # Now we find the difference between the two
-    E_h = np.abs(h_f - h_next)
-    E_v = np.abs(v_f - v_next)
+        _, h_next, v_next = sim.rk4_step(t, h, v)
 
-    return E_h, E_v
+        # Now we find the difference between the two
+        E_h = np.abs(h_f - h_next)
+        E_v = np.abs(v_f - v_next)
 
-
-if __name__ == '__main__':
-    # Create a rocket and a simulator object
+        return E_h, E_v
+    
     rocket = Rocket(
                         m=0.05,
                         thrust=10.0,
@@ -38,8 +38,6 @@ if __name__ == '__main__':
                       dt=0.1,
                       T=20.0)
     
-    dt_values = [0.001, 0.01, 0.05, 0.1, 0.2]
-
     E_h_arr = []
     E_v_arr = []
     t_arr = []
@@ -65,6 +63,13 @@ if __name__ == '__main__':
 
         E_h_arr.append(E_h)
         E_v_arr.append(E_v)
+
+    return E_h_arr, E_v_arr
+
+
+if __name__ == '__main__':
+    dt_values = [0.001, 0.01, 0.05, 0.1, 0.2]
+    E_h_arr, E_v_arr = analyze_convergence(dt_values)
 
     plt.figure(figsize=(10, 5))
 

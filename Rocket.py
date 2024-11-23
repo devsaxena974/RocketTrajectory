@@ -32,7 +32,9 @@ class Rocket:
                     A: float
                 ):
         # Cast everything to a numpy float 64-bit
-        self.m = np.float64(m) + np.float64(fuel_mass)
+        self.dry_mass = np.float64(m)
+        self.m = np.float64(m)
+        self.m += np.float64(fuel_mass)
         self.thrust = np.float64(thrust)
         self.burn_time = np.float64(burn_time)
         self.fuel_mass = np.float64(fuel_mass)
@@ -42,22 +44,31 @@ class Rocket:
 
     # Function to calculate amount of engine fuel left
     def fuel_status(self, t, dt):
+        #dry_mass = self.m - self.fuel_mass
         if t <= self.burn_time:
             # Reduce mass based on burn rate and time step
-            self.m -= self.burn_rate * dt
+            self.m = max(self.dry_mass, self.m - self.burn_rate * dt)
             fuel_left = max(0.0, self.fuel_mass - self.burn_rate * t)
             return fuel_left
         else:
             # If t is past burn_time, fuel has been depleted
+            self.m = self.dry_mass
             return 0.0
 
     # Function to Calculate thrust at time t
     def thrust_at_time(self, t, dt):
         fuel = self.fuel_status(t, dt)
+        print("Time step: ", t)
         # Determine thrust at t based on thrust curve
-        if fuel > 0.0:
-            # linearly decreasing thrust
-            return self.thrust * (1 - t / self.burn_time)
+        if t < 0 or t > self.burn_time:
+            print("No thrust")
+            return 0.0  # No thrust before or after burn
+        elif t < self.burn_time * 0.1:
+            print("Rapid thrust")
+            # Rapid thrust increase in the first 10% of burn time
+            return self.thrust * (t / (self.burn_time * 0.1))
         else:
-            return 0.0
-        
+            print("Gradually decreasing thrust")
+            # Gradual decrease after reaching peak
+            decay_factor = 1 - ((t - self.burn_time * 0.1) / (self.burn_time * 0.9))**2
+            return self.thrust * decay_factor

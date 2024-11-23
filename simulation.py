@@ -94,7 +94,10 @@ class Simulation:
         # Calculate air density using ideal gas law
         rho = cur_pressure / (air_gas_const * cur_temp)
 
-        return rho
+        if rho < 0 or rho > 1.2:
+            print(f"Unrealistic air density: {rho}")
+
+        return max(0.0, rho)
     
     # Function to calculate drag forces on the rocket
     def drag(self, h, v):
@@ -111,7 +114,7 @@ class Simulation:
     # Define g(t, h, v) to compute the acceleration (dv/dt)
     def g(self, t, h, v):
         # Recalculate thrust based on time
-        self.rocket.thrust = self.rocket.thrust_at_time(t, dt=self.dt)
+        F_T = self.rocket.thrust_at_time(t, dt=self.dt)
 
         F_D = self.drag(h, v)
         F_G = self.rocket.m * self.G
@@ -121,7 +124,13 @@ class Simulation:
         #     F_net = self.thrust - F_G - F_D
         # else:
         #     F_net = -F_G - F_D
-        F_net = self.rocket.thrust - F_G - F_D
+        F_net = F_T - F_G - F_D
+        print("Rocket Mass: ", self.rocket.m)
+        print("Drag force: ", F_D)
+        print("Grav force: ", F_G)
+        print("Thrust force: ", F_T)
+        print("Net force: ", F_net)
+        print("\n")
 
         return F_net / self.rocket.m
     
@@ -158,7 +167,16 @@ class Simulation:
         v = self.v_0
         h = self.h_0
 
-        while (t <= self.T) and (h >= -0.00000001):
+        while (t <= self.T): # and (h >= -0.00000001)
+            if np.isnan(h) or np.isnan(v):
+                print(f"Simulation stopped due to NaN at time {t:.2f}s")
+                break
+            if h < 0 and t > self.rocket.burn_time:
+                print("Rocket has landed.")
+                break
+
+            print(f"Time: {t} Alt: {h} Velo: {v}")
+
             self.times.append(t)
             self.altitudes.append(h)
             self.velocities.append(v)
@@ -167,8 +185,10 @@ class Simulation:
             #     print("Apogee reached!")
 
             # Check to see if rocket has escaped earth's atmosphere
-            if h > 99779.3:
-                print("Exited Earth's Atmosphere!")
+            # if h > 99779.3:
+            #     print("Exited Earth's Atmosphere!")
+            #     return
+            if t > 2.0 and h <= -0.001:
                 break
 
             # Update variables based on rk4 output for next loop run

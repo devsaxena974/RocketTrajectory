@@ -47,7 +47,7 @@ def modelRocketTest2():
     
     
 def SaturnVTest():
-    SaturnV = Rocket(m = 2800000.0,
+    SaturnV = Rocket(m = 137000.0,
                         thrust = 34500000.0,
                         burn_time = 168.0,
                         fuel_mass = 203000.0,
@@ -66,10 +66,35 @@ def SaturnVTest():
     sim.run()
     sim.visualize()
 
-if __name__ == '__main__':
-    modelRocketTest1()
+def V2Test():
+    V2 = Rocket(
+        m = 4000.0,
+        thrust = 270000.0 * 9.8067,
+        burn_time = 60.0,
+        fuel_mass = 8500.0,
+        C_D = 0.5,
+        A = 2.14
+    )
 
-    modelRocketTest2()
+    sim = Simulation(
+        rocket = V2,
+        h_0=0.0,
+        v_0=0.0,
+        theta=90.0,
+        temp=288.15,
+        pressure=101325.0,
+        dt=0.1,
+        T=600.0
+    )
+
+    sim.run()
+    sim.visualize()
+
+if __name__ == '__main__':
+    #modelRocketTest1()
+
+    #modelRocketTest2()
 
     #SaturnVTest()
-    
+
+    V2Test()
