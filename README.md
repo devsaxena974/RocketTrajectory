@@ -6,7 +6,6 @@ This project simulates the launch and trajectory of rockets using physics princi
 
 ## Directory Structure
 ```
-project/
 ├── figures/
 ├── previous_files/
 ├── Rocket.py           # Defines the Rocket class
@@ -37,7 +36,6 @@ pip install numpy matplotlib
    Download or clone the repository to your local machine:
    ```bash
    git clone <repository_url>
-   cd project
    ```
 
 2. **Run the Test Cases**
