@@ -7,10 +7,12 @@ This project simulates the launch and trajectory of rockets using physics princi
 ## Directory Structure
 ```
 project/
+├── figures/
+├── previous_files/
 ├── Rocket.py           # Defines the Rocket class
 ├── Simulation.py       # Defines the Simulation class
 ├── analysis.py         # Provides convergence and error analysis tools
-├── main.py             # Main script to run test cases
+├── test.py             # Main script to run test cases
 └── README.md           # This documentation
 ```
 
