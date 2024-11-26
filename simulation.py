@@ -42,6 +42,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from Rocket import Rocket
+from analysis import analyze_convergence, plot_convergence
 
 class Simulation:
     # Constructor
@@ -216,3 +217,12 @@ class Simulation:
 
         plt.tight_layout()
         plt.show()
+
+    # Function to analyze error and convergence
+    def analysis(self, dt_values=[0.001, 0.01, 0.05, 0.1, 0.2]):
+        # store the errors for h, v in arrays
+        E_h_array, E_v_array = analyze_convergence(self.rocket, self, dt_values)
+        # show the plots of the errors for both altitude and velocity
+        #   - they should be somewhat linear on a log-log graph
+        return plot_convergence(dt_values, E_h_array, E_v_array)
+        

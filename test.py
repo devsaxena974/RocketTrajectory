@@ -1,4 +1,3 @@
-from previous_files.RocketSim import RocketSim
 from Rocket import Rocket
 from Simulation import Simulation
 
@@ -22,6 +21,8 @@ def modelRocketTest1():
     sim.run()
     sim.visualize()
 
+    sim.analysis()
+
 def modelRocketTest2():
     # First we create a rocket
     rocket = Rocket(m=0.05,
@@ -43,6 +44,8 @@ def modelRocketTest2():
     
     sim2.run()
     sim2.visualize()
+
+    sim2.analysis(dt_values=[0.01, 0.05, 0.1])
     
     
     
@@ -66,14 +69,32 @@ def SaturnVTest():
     sim.run()
     sim.visualize()
 
+    sim.analysis()
+
 def V2Test():
+    # Define the thrust profile
+    def V2_thrust_profile(t, burn_time, max_thrust):
+        if t < 0 or t > burn_time:
+            print("No thrust")
+            return 0.0  # No thrust before or after burn
+        elif t < burn_time * 0.1:
+            print("Rapid thrust")
+            # Rapid thrust increase in the first 10% of burn time
+            return max_thrust * (t / (burn_time * 0.1))
+        else:
+            print("Gradually decreasing thrust")
+            # Gradual decrease after reaching peak
+            decay_factor = 1 - ((t - burn_time * 0.1) / (burn_time * 0.9))**2
+            return max_thrust * decay_factor
+
     V2 = Rocket(
         m = 4000.0,
         thrust = 270000.0 * 9.8067,
         burn_time = 60.0,
         fuel_mass = 8500.0,
         C_D = 0.5,
-        A = 2.14
+        A = 2.14,
+        thrust_profile=V2_thrust_profile
     )
 
     sim = Simulation(
@@ -90,11 +111,14 @@ def V2Test():
     sim.run()
     sim.visualize()
 
+    # analyze convergence
+    sim.analysis()
+
 if __name__ == '__main__':
     #modelRocketTest1()
 
-    #modelRocketTest2()
+    modelRocketTest2()
 
     #SaturnVTest()
 
-    V2Test()
+    #V2Test()
