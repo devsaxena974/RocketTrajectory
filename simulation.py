@@ -185,9 +185,9 @@ class Simulation:
             #     print("Apogee reached!")
 
             # Check to see if rocket has escaped earth's atmosphere
-            # if h > 99779.3:
-            #     print("Exited Earth's Atmosphere!")
-            #     return
+            if h > 99779.3:
+                print("Exited Earth's Atmosphere!")
+                return
             if t > 2.0 and h <= -0.001:
                 break
 

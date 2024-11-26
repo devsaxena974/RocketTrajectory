@@ -5,7 +5,7 @@ from Simulation import Simulation
 from Rocket import Rocket
 
 # Analyze convergence of rk4 implementation using different dt values
-def analyze_convergence(dt_values):
+def analyze_convergence(rocket: Rocket, sim: Simulation, dt_values):
 
     # Helper method to calculate the local truncation error
     def truncation_error(t, h, v, sim: Simulation):
@@ -65,6 +65,30 @@ def analyze_convergence(dt_values):
         E_v_arr.append(E_v)
 
     return E_h_arr, E_v_arr
+
+def plot_convergence(dt_values, E_h_arr, E_v_arr):
+    plt.figure(figsize=(10, 5))
+
+    # Log-log plot of dt vs. altitude error
+    plt.subplot(1, 2, 1)
+    plt.loglog(dt_values, E_h_arr, marker="o", label="Altitude Error")
+    plt.xlabel("Time Step Size (dt)")
+    plt.ylabel("Max Local Truncation Error")
+    plt.title("Altitude Error vs. Time Step")
+    plt.grid(True, which="both")
+    plt.legend()
+
+    # Log-log plot of dt vs. velocity error
+    plt.subplot(1, 2, 2)
+    plt.loglog(dt_values, E_v_arr, marker="o", label="Velocity Error")
+    plt.xlabel("Time Step Size (dt)")
+    plt.ylabel("Max Local Truncation Error")
+    plt.title("Velocity Error vs. Time Step")
+    plt.grid(True, which="both")
+    plt.legend()
+
+    plt.tight_layout()
+    plt.show()
 
 
 if __name__ == '__main__':

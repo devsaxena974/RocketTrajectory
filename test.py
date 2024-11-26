@@ -1,4 +1,4 @@
-from RocketSim import RocketSim
+from previous_files.RocketSim import RocketSim
 from Rocket import Rocket
 from Simulation import Simulation
 
