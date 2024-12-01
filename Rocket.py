@@ -2,7 +2,7 @@
     Rocket Class
     State Variables:
         Rocket Mass = m (kg)
-        Engine Thrust = thrust (N)
+        Max Engine Thrust = thrust (N)
         Engine Burn Time = burn_time (s)
         Fuel Mass = fuel_mass (kg)
         Engine Burn Rate = fuel_mass / burn_time (kg/s)
