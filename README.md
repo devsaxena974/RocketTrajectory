@@ -4,22 +4,6 @@
 ## Overview
 This project simulates the launch and trajectory of rockets using physics principles, numerical integration (Runge-Kutta 4th order), and customizable thrust profiles. The simulation also includes functionality for analyzing numerical error and convergence.
 
-## Directory Structure
-```
-├── figures/
-├── inc/
-├ └── thrust_profiles.py
-├── previous_files/
-├── writing/
-├── Rocket.py           # Defines the Rocket class
-├── Simulation.py       # Defines the Simulation class
-├── analysis.py         # Provides convergence and error analysis tools
-├── test.py             # Main script to run test cases
-├── gui.py              # Runs the UI for the simulation
-├── requirements.txt
-└── README.md           # This documentation
-```
-
 ---
 
 ## Prerequisites
@@ -41,9 +25,9 @@ pip install -r requirements.txt
    ```
 
 2. **Run the User Interface**
-   Execute 'gui.py' to run the user interface opened in a new window. Input your desired rocket and simulator specs, or choose from one of the presets.:
+   Execute 'main.py' to run the user interface opened in a new window. Input your desired rocket and simulator specs, or choose from one of the presets.
    ```bash
-   python gui.py
+   python main.py
    ```
 
 3. **Customize Rocket and Simulation Parameters**
@@ -66,24 +50,24 @@ pip install -r requirements.txt
 
 ## File Descriptions
 
-### `Rocket.py`
+### `src/Rocket.py`
 Defines the `Rocket` class. Key features:
 - Mass, thrust, burn time, and drag parameters.
 - `thrust_at_time`: Computes thrust based on the current time and custom thrust profile.
 - `fuel_status`: Tracks remaining fuel and adjusts rocket mass.
 
-### `Simulation.py`
+### `src/Simulation.py`
 Defines the `Simulation` class. Key features:
 - Models rocket motion using the RK4 numerical integration method.
 - Calculates drag and air density dynamically.
 - Provides visualization and error analysis functions.
 
-### `analysis.py`
+### `src/analysis.py`
 Contains functions for error and convergence analysis:
 - `analyze_convergence`: Computes truncation errors for different time step sizes.
 - `plot_convergence`: Plots the errors as log-log graphs.
 
-### `gui.py`
+### `main.py`
 Contains code to run the user interface for the simulation
 - Uses PyQT5 to create the windows and other features of the UI
 - Imports all code necessary for the simulation from the files above
