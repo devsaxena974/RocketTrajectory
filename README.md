@@ -106,9 +106,10 @@ Contains code to run the user interface for the simulation
 
 ## Example Output
 ### Altitude and Velocity Plots
-Running the V2 test produces graphs of altitude and velocity over time.
+Running the hellfire missile simulation produces graphs of altitude and velocity over time.
+![alt text](https://github.com/devsaxena974/RocketTrajectory/blob/master/figures/hellfire_gui_1.png)
 
 ### Convergence Analysis
 Error plots for varying time step sizes demonstrate \( h^4 \) scaling in the RK4 method.
-
+![alt text](https://github.com/devsaxena974/RocketTrajectory/blob/master/figures/hellfire_gui_2.png)
 ---
