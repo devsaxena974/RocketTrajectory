@@ -97,7 +97,7 @@ Contains functions for error and convergence analysis:
 - `analyze_convergence`: Computes truncation errors for different time step sizes.
 - `plot_convergence`: Plots the errors as log-log graphs.
 
-### 'gui.py'
+### `gui.py`
 Contains code to run the user interface for the simulation
 - Uses PyQT5 to create the windows and other features of the UI
 - Imports all code necessary for the simulation from the files above
