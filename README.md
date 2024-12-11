@@ -19,13 +19,10 @@ This project simulates the launch and trajectory of rockets using physics princi
 
 ## Prerequisites
 - Python 3.7 or higher
-- Required libraries:
-  - `numpy`
-  - `matplotlib`
 
 Install dependencies using:
 ```bash
-pip install numpy matplotlib
+pip install -r requirements.txt
 ```
 
 ---
@@ -38,35 +35,32 @@ pip install numpy matplotlib
    git clone <repository_url>
    ```
 
-2. **Run the Test Cases**
-   Test cases for different rocket models are in `main.py`. Execute the script to run all or individual test cases:
+2. **Run the User Interface**
+   Execute 'gui.py' to run the user interface opened in a new window. Input your desired rocket and simulator specs, or choose from one of the presets.:
    ```bash
-   python test.py
+   python gui.py
    ```
 
 3. **Customize Rocket and Simulation Parameters**
-   You can modify parameters in `test.py` to define new rockets or adjust simulation settings. Examples are provided for:
+   You can modify parameters using the input fields in the UI to define new rockets or adjust simulation settings. Some preset examples are provided for:
    - A small model rocket
    - A slightly larger model rocket
    - Saturn V
    - V2 rocket
+   - Hellfire Missile
+   - Patriot Missile
 
 4. **Analyze Convergence**
-   To analyze convergence and truncation errors, call the `analysis()` method on the `Simulation` object:
-   ```python
-   sim.analysis(dt_values=[0.001, 0.01, 0.05, 0.1, 0.2])
-   ```
+   To analyze convergence and truncation errors, click the button to run an error analysis on the current configuration:
+
 
 5. **Visualize Results**
-   The `visualize()` method generates altitude and velocity plots:
-   ```python
-   sim.visualize()
-   ```
+   You should be able to see plots of the altitude and velocity of the rocket over time. Clicking the error analysis button will open a new window with plots of the errors:
 
 ---
 
 ## Adding a Custom Thrust Profile
-Thrust profiles can be defined as Python functions and passed during `Rocket` instantiation. Example for a linearly decreasing profile:
+Thrust profiles can be defined as Python functions and passed during `Rocket` instantiation. To add your own, navigate to the 'inc/thrust_profiles.py' file and define a new function. Example for a linearly decreasing engine thrust profile:
 ```python
 def linear_thrust(t, burn_time, max_thrust):
     return max(0.0, max_thrust * (1 - t / burn_time))
@@ -102,6 +96,11 @@ Defines the `Simulation` class. Key features:
 Contains functions for error and convergence analysis:
 - `analyze_convergence`: Computes truncation errors for different time step sizes.
 - `plot_convergence`: Plots the errors as log-log graphs.
+
+### `gui.py`
+Contains code to run the user interface for the simulation
+- Uses PyQT5 to create the windows and other features of the UI
+- Imports all code necessary for the simulation from the files above
 
 ---
 
