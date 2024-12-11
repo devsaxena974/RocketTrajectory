@@ -23,7 +23,7 @@ This project simulates the launch and trajectory of rockets using physics princi
 ---
 
 ## Prerequisites
-- Python 3.7 or higher
+- Python 3.11.1 or higher
 
 Install dependencies using:
 ```bash
@@ -64,15 +64,6 @@ pip install -r requirements.txt
 
 ---
 
-## Adding a Custom Thrust Profile
-Thrust profiles can be defined as Python functions and passed during `Rocket` instantiation. To add your own, navigate to the 'inc/thrust_profiles.py' file and define a new function. Example for a linearly decreasing engine thrust profile:
-```python
-def linear_thrust(t, burn_time, max_thrust):
-    return max(0.0, max_thrust * (1 - t / burn_time))
-```
-
----
-
 ## File Descriptions
 
 ### `Rocket.py`
@@ -106,5 +97,6 @@ Running the hellfire missile simulation produces graphs of altitude and velocity
 
 ### Convergence Analysis
 Error plots for varying time step sizes demonstrate \( h^4 \) scaling in the RK4 method.
+
 ![alt text](https://github.com/devsaxena974/RocketTrajectory/blob/master/figures/hellfire_gui_2.png)
 ---
