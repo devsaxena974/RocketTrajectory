@@ -7,11 +7,16 @@ This project simulates the launch and trajectory of rockets using physics princi
 ## Directory Structure
 ```
 ├── figures/
+├── inc/
+├ └── thrust_profiles.py
 ├── previous_files/
+├── writing/
 ├── Rocket.py           # Defines the Rocket class
 ├── Simulation.py       # Defines the Simulation class
 ├── analysis.py         # Provides convergence and error analysis tools
 ├── test.py             # Main script to run test cases
+├── gui.py              # Runs the UI for the simulation
+├── requirements.txt
 └── README.md           # This documentation
 ```
 
@@ -64,16 +69,6 @@ Thrust profiles can be defined as Python functions and passed during `Rocket` in
 ```python
 def linear_thrust(t, burn_time, max_thrust):
     return max(0.0, max_thrust * (1 - t / burn_time))
-
-rocket = Rocket(
-    m=500,
-    thrust=1e6,
-    burn_time=120,
-    fuel_mass=300,
-    C_D=0.5,
-    A=10,
-    thrust_profile=linear_thrust
-)
 ```
 
 ---
