@@ -8,12 +8,16 @@
         Engine Burn Rate = fuel_mass / burn_time (kg/s)
         Rocket Drag Coefficient = C_D (unitless)
         Rocket Cross Sectional Nose Area = A (m^2)
+        Rocket Engine Thrust Profile = function()
 
     Functions:
-        thrust_at_time(t):
+        default_thrust_profile(t, burn_time, thrust):
+            Returns a default profile that decreases engine thrust linearly
+
+        thrust_at_time(t, dt):
             Returns the thrust at time t based on burn rate and "thrust curve"
 
-        fuel_status(t):
+        fuel_status(t, dt):
             Returns the amount of engine fuel left
 '''
 

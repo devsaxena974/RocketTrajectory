@@ -135,9 +135,8 @@ class Simulation:
 
         return F_net / self.rocket.m
     
+    # Perform a single Runge-Kutta 4th order method step
     def rk4_step(self, t, h, v):
-        # Performs a single Runge-Kutta 4th order method step
-
         # Slope 1 Calculation
         s_1h = self.dt * self.f(t, h, v)
         s_1v = self.dt * self.g(t, h, v)
@@ -168,7 +167,7 @@ class Simulation:
         v = self.v_0
         h = self.h_0
 
-        while (t <= self.T): # and (h >= -0.00000001)
+        while (t <= self.T):
             if np.isnan(h) or np.isnan(v):
                 print(f"Simulation stopped due to NaN at time {t:.2f}s")
                 break
@@ -182,8 +181,6 @@ class Simulation:
             self.altitudes.append(h)
             self.velocities.append(v)
 
-            # if v <= 0 and t > self.rocket.burn_time:
-            #     print("Apogee reached!")
 
             # Check to see if rocket has escaped earth's atmosphere
             if h > 99779.3:
@@ -195,7 +192,7 @@ class Simulation:
             # Update variables based on rk4 output for next loop run
             t, h, v = self.rk4_step(t, h, v)
 
-    # Function to visualize output
+    # Function to visualize output in plots
     def visualize(self):
         print(self.times)
         print(self.altitudes)

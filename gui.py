@@ -1,8 +1,34 @@
+'''
+    GUI Implementation:
+
+    Uses the PyQT5 library to create a basic GUI where users can input simulation
+        and rocket parameters and get back visualizations
+
+    Fields:
+        Thrust Profile
+        Rocket Mass
+        Thrust
+        Burn Time
+        Fuel Mass
+        Drag Coefficient
+        Cross-Section Area
+        Initial Altitude
+        Initial Velocity
+        Launch Angle
+        Time Step
+        Simulation Duration
+    
+    Outputs:
+        Altitude Graph
+        Velocity Graph
+        Truncation Error Graphs
+'''
 import sys
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QFormLayout, QLabel, QLineEdit, QPushButton, QComboBox, QMainWindow, QHBoxLayout
 )
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThreadPool, QRunnable, pyqtSignal, QObject
+from PyQt5.QtGui import QFont
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar
@@ -27,6 +53,24 @@ def V2_thrust_profile(t, burn_time, max_thrust):
     else:
         decay_factor = 1 - ((t - burn_time * 0.1) / (burn_time * 0.9))**2
         return max_thrust * decay_factor
+    
+def hellfire_thrust_profile(t, burn_time, max_thrust):
+    # Rapid linear decrease due to short burn time
+    return max(0.0, max_thrust * (1 - t / burn_time))
+
+def patriot_thrust_profile(t, burn_time, max_thrust):
+    # Slightly more gradual decrease
+    if t < burn_time * 0.2:
+        # Rapid increase in the first 20% of burn time
+        return max_thrust * (t / (burn_time * 0.2))
+    else:
+        # Gradual decrease after the peak
+        decay_factor = 1 - ((t - burn_time * 0.2) / (burn_time * 0.8))**1.5
+        return max_thrust * decay_factor
+
+def falcon1_thrust_profile(t, burn_time, max_thrust):
+    # Almost constant thrust with a slight linear decrease
+    return max(0.0, max_thrust * (1 - 0.1 * t / burn_time))
 
 # Preset rocket configs
 PRESETS = {
@@ -57,7 +101,66 @@ PRESETS = {
         "A": 2.14,
         "thrust_profile": V2_thrust_profile,
     },
+     "Hellfire Missile": {
+        "m": 49.0,
+        "thrust": 5000.0,
+        "burn_time": 5.0,
+        "fuel_mass": 9.0,
+        "C_D": 0.3,
+        "A": 0.02,
+        "thrust_profile": hellfire_thrust_profile,
+    },
+    "Patriot Missile": {
+        "m": 700.0,
+        "thrust": 110000.0,
+        "burn_time": 11.0,
+        "fuel_mass": 210.0,
+        "C_D": 0.4,
+        "A": 0.25,
+        "thrust_profile": patriot_thrust_profile,
+    },
+    "Falcon 1 First Stage": {
+        "m": 27200.0,  # Falcon 1 empty weight with first stage fuel
+        "thrust": 327000.0,  # Merlin engine thrust
+        "burn_time": 170.0,
+        "fuel_mass": 22000.0,
+        "C_D": 0.5,
+        "A": 3.2, 
+        "thrust_profile": falcon1_thrust_profile,
+    },
 }
+
+# Worker signals
+class WorkerSignals(QObject):
+    finished = pyqtSignal()  # No data, just notify completion
+
+# Simulation worker
+class SimulationWorker(QRunnable):
+    def __init__(self, sim):
+        super().__init__()
+        self.sim = sim
+        self.signals = WorkerSignals()
+
+    def run(self):
+        self.sim.run()
+        self.signals.finished.emit()
+
+# Error Analysis worker
+class ErrorAnalysisWorker(QRunnable):
+    def __init__(self, sim):
+        super().__init__()
+        self.sim = sim
+        #self.dt_values = dt_values
+        self.signals = WorkerSignals()
+        #self.callback = callback
+
+    def run(self):
+        #E_h_array, E_v_array = analyze_convergence(self.sim.rocket, self.sim, self.dt_values)
+        #self.callback(E_h_array, E_v_array)
+        #error_window = ErrorAnalysisWindow(self.sim, self.dt_values)
+        #error_window.show()
+        self.signals.finished.emit()
+        
 
 # Error Analysis Window
 class ErrorAnalysisWindow(QMainWindow):
@@ -114,7 +217,16 @@ class RocketSimulatorGUI(QMainWindow):
         # Main layout
         self.central_widget = QWidget()
         self.setCentralWidget(self.central_widget)
-        self.main_layout = QHBoxLayout(self.central_widget)  # Use horizontal layout for main structure
+        self.main_layout = QHBoxLayout(self.central_widget)
+
+        # Thread pool for background tasks
+        self.thread_pool = QThreadPool()
+
+        # Loading label
+        self.loading_label = QLabel("Loading...")
+        self.loading_label.setAlignment(Qt.AlignCenter)
+        self.loading_label.setFont(QFont("Arial", 16))
+        self.loading_label.setVisible(False)
 
         # Left layout: Input form
         self.form_layout = QFormLayout()
@@ -127,7 +239,12 @@ class RocketSimulatorGUI(QMainWindow):
 
         # Thrust profile dropdown
         self.thrust_profile_dropdown = QComboBox()
-        self.thrust_profile_dropdown.addItems(["Linear Decrease", "Decrease by 1/4", "V2 Thrust Profile"])
+        self.thrust_profile_dropdown.addItems(["Linear Decrease", 
+                                                "Decrease by 1/4", 
+                                                "V2 Thrust Profile",
+                                                "Hellfire Thrust Profile",
+                                                "Patriot Thrust Profile",
+                                                "Falcon 1 Thrust Profile",])
         self.form_layout.addRow("Thrust Profile (Override):", self.thrust_profile_dropdown)
 
         # Rocket parameters
@@ -169,6 +286,9 @@ class RocketSimulatorGUI(QMainWindow):
         self.error_button.setEnabled(False)
         self.form_layout.addWidget(self.error_button)
 
+        # Add loading label
+        self.form_layout.addWidget(self.loading_label)
+        
         # Add the form layout to the main layout
         self.main_layout.addLayout(self.form_layout, 1)
 
@@ -228,6 +348,12 @@ class RocketSimulatorGUI(QMainWindow):
             thrust_profile = quarter_thrust
         elif thrust_profile_option == "V2 Thrust Profile":
             thrust_profile = V2_thrust_profile
+        elif thrust_profile_option == "Hellfire Thrust Profile":
+            thrust_profile = hellfire_thrust_profile
+        elif thrust_profile_option == "Patriot Thrust Profile":
+            thrust_profile = patriot_thrust_profile
+        elif thrust_profile_option == "Falcon 1 Thrust Profile":
+            thrust_profile = falcon1_thrust_profile
         else:
             # Default to preset thrust profile if no override
             thrust_profile = PRESETS.get(self.preset_dropdown.currentText(), {}).get("thrust_profile", linear_thrust)
@@ -237,12 +363,25 @@ class RocketSimulatorGUI(QMainWindow):
         self.sim = Simulation(rocket, h_0, v_0, theta, 288.15, 101325, dt, T)
 
         # Run the simulation
-        self.sim.run()
+        #self.sim.run()
+
+        # Show loading indicator
+        self.loading_label.setVisible(True)
+
+        # Run simulation in the background
+        worker = SimulationWorker(self.sim)
+        worker.signals.finished.connect(self.on_simulation_finished)
+        self.thread_pool.start(worker)
 
         # Enable error analysis button
         self.error_button.setEnabled(True)
 
-        # Plot results
+    def on_simulation_finished(self):
+        # Hide loading indicator and enable error analysis button
+        self.loading_label.setVisible(False)
+        self.error_button.setEnabled(True)
+
+        # Plot simulation results
         self.figure.clear()
         ax1 = self.figure.add_subplot(2, 1, 1)
         ax1.plot(self.sim.times, self.sim.altitudes, label="Altitude (m)", color="b")
@@ -260,9 +399,27 @@ class RocketSimulatorGUI(QMainWindow):
 
     def show_error_analysis(self):
         if self.sim:
-            dt_values = [0.001, 0.01, 0.05, 0.1, 0.2]
-            self.error_window = ErrorAnalysisWindow(self.sim, dt_values)
-            self.error_window.show()
+            #dt_values = [0.001, 0.01, 0.05, 0.1, 0.2]
+            # Show loading indicator
+            self.loading_label.setVisible(True)
+
+            
+            # Create and start the worker
+            #worker = ErrorAnalysisWorker(self.sim, dt_values)
+            worker = ErrorAnalysisWorker(self.sim)
+            worker.signals.finished.connect(self.on_error_analysis_finished)
+            self.thread_pool.start(worker)
+
+
+    def on_error_analysis_finished(self):
+
+        dt_values = [0.001, 0.01, 0.05, 0.1, 0.2]
+        # Hide loading indicator
+        self.loading_label.setVisible(False)
+
+        # Open error analysis window and plot results (code omitted for brevity)
+        self.error_window = ErrorAnalysisWindow(self.sim, dt_values)
+        self.error_window.show()
 
 
 # Main application

@@ -1,3 +1,14 @@
+'''
+    Error Analysis Functions
+    
+    Functions:
+        analyze_convergence(rocket, sim, dt_values):
+            Calculates the local truncation errors for a given rocket and simulator
+                across a range of step size values
+
+        plot_convergence(dt_values, E_h_arr, E_v_arr):
+            Displays the log-log plots of altitude error and velocity error
+'''
 import numpy as np
 import matplotlib.pyplot as plt
 
