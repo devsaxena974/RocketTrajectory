@@ -1,3 +1,8 @@
+'''
+    test
+
+        Test file to initialize rocket and simulator objects and run them
+'''
 from Rocket import Rocket
 from Simulation import Simulation
 

@@ -33,44 +33,13 @@ from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas,
     NavigationToolbar2QT as NavigationToolbar
 )
+
+# Import everything needed for the simulation
 import matplotlib.pyplot as plt
 from Simulation import Simulation
 from Rocket import Rocket
 from analysis import analyze_convergence
-
-# Define thrust profiles
-def linear_thrust(t, burn_time, max_thrust):
-    return max(0.0, max_thrust * (1 - t / burn_time))
-
-def quarter_thrust(t, burn_time, max_thrust):
-    return max(0.0, max_thrust * (1 - 0.25 * t / burn_time))
-
-def V2_thrust_profile(t, burn_time, max_thrust):
-    if t < 0 or t > burn_time:
-        return 0.0
-    elif t < burn_time * 0.1:
-        return max_thrust * (t / (burn_time * 0.1))
-    else:
-        decay_factor = 1 - ((t - burn_time * 0.1) / (burn_time * 0.9))**2
-        return max_thrust * decay_factor
-    
-def hellfire_thrust_profile(t, burn_time, max_thrust):
-    # Rapid linear decrease due to short burn time
-    return max(0.0, max_thrust * (1 - t / burn_time))
-
-def patriot_thrust_profile(t, burn_time, max_thrust):
-    # Slightly more gradual decrease
-    if t < burn_time * 0.2:
-        # Rapid increase in the first 20% of burn time
-        return max_thrust * (t / (burn_time * 0.2))
-    else:
-        # Gradual decrease after the peak
-        decay_factor = 1 - ((t - burn_time * 0.2) / (burn_time * 0.8))**1.5
-        return max_thrust * decay_factor
-
-def falcon1_thrust_profile(t, burn_time, max_thrust):
-    # Almost constant thrust with a slight linear decrease
-    return max(0.0, max_thrust * (1 - 0.1 * t / burn_time))
+from inc.thrust_profiles import linear_thrust, quarter_thrust, V2_thrust_profile, hellfire_thrust_profile, patriot_thrust_profile, falcon1_thrust_profile
 
 # Preset rocket configs
 PRESETS = {
@@ -119,15 +88,15 @@ PRESETS = {
         "A": 0.25,
         "thrust_profile": patriot_thrust_profile,
     },
-    "Falcon 1 First Stage": {
-        "m": 27200.0,  # Falcon 1 empty weight with first stage fuel
-        "thrust": 327000.0,  # Merlin engine thrust
-        "burn_time": 170.0,
-        "fuel_mass": 22000.0,
-        "C_D": 0.5,
-        "A": 3.2, 
-        "thrust_profile": falcon1_thrust_profile,
-    },
+    # "Falcon 1 First Stage": {
+    #     "m": 27200.0,  # Falcon 1 empty weight with first stage fuel
+    #     "thrust": 327000.0,  # Merlin engine thrust
+    #     "burn_time": 170.0,
+    #     "fuel_mass": 22000.0,
+    #     "C_D": 0.5,
+    #     "A": 3.2, 
+    #     "thrust_profile": falcon1_thrust_profile,
+    # },
 }
 
 # Worker signals
@@ -244,7 +213,8 @@ class RocketSimulatorGUI(QMainWindow):
                                                 "V2 Thrust Profile",
                                                 "Hellfire Thrust Profile",
                                                 "Patriot Thrust Profile",
-                                                "Falcon 1 Thrust Profile",])
+                                                #"Falcon 1 Thrust Profile",
+                                            ])
         self.form_layout.addRow("Thrust Profile (Override):", self.thrust_profile_dropdown)
 
         # Rocket parameters

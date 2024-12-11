@@ -78,7 +78,7 @@ class Simulation:
 
     # Function to calculate air density (rho) based on altitude
     #   - uses the International Standard Atmosphere model
-    def air_density(self, h):
+    def air_density(self, h: float):
         # First define some constants
         air_gas_const = np.float64(287.05) # given in J/kg K)
         temp_lapse_rate = np.float64(-0.0065) # rate at which temp decreases with altitude given in K/m
@@ -101,19 +101,19 @@ class Simulation:
         return max(0.0, rho)
     
     # Function to calculate drag forces on the rocket
-    def drag(self, h, v):
+    def drag(self, h: float, v: float):
         # compute the air density value first
         self.rho = self.air_density(h)
         # now we can calculate the drag forces based on the formula
         return 0.5 * self.rho * (v**2) * self.rocket.C_D * self.rocket.A
     
     # Define f(t, h, v) to compute the velocity (dh/dt)
-    def f(self, t, h, v):
+    def f(self, t: float, h: float, v: float):
         # simply returns v
         return v
 
     # Define g(t, h, v) to compute the acceleration (dv/dt)
-    def g(self, t, h, v):
+    def g(self, t: float, h: float, v: float):
         # Recalculate thrust based on time
         F_T = self.rocket.thrust_at_time(t, dt=self.dt)
 
@@ -136,7 +136,7 @@ class Simulation:
         return F_net / self.rocket.m
     
     # Perform a single Runge-Kutta 4th order method step
-    def rk4_step(self, t, h, v):
+    def rk4_step(self, t: float, h: float, v: float):
         # Slope 1 Calculation
         s_1h = self.dt * self.f(t, h, v)
         s_1v = self.dt * self.g(t, h, v)

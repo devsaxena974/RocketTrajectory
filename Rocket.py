@@ -49,7 +49,7 @@ class Rocket:
         self.thrust_profile = thrust_profile if thrust_profile else self.default_thrust_profile
 
     # Function to set the default thrust profile if one is not provided
-    def default_thrust_profile(self, t, burn_time, max_thrust):
+    def default_thrust_profile(self, t: float, burn_time: float, max_thrust: float):
         # Decrease thrust linearly
         if (t >= 0) and (t <= burn_time):
             return max_thrust * (1 - t / burn_time)
@@ -57,7 +57,7 @@ class Rocket:
         return 0.0
 
     # Function to calculate amount of engine fuel left
-    def fuel_status(self, t, dt):
+    def fuel_status(self, t: float, dt: float):
         #dry_mass = self.m - self.fuel_mass
         if t <= self.burn_time:
             # Reduce mass based on burn rate and time step
@@ -70,7 +70,7 @@ class Rocket:
             return 0.0
 
     # Function to Calculate thrust at time t
-    def thrust_at_time(self, t, dt):
+    def thrust_at_time(self, t: float, dt: float):
         fuel = self.fuel_status(t, dt)
         print("Time step: ", t)
         # Determine thrust at t based on thrust curve
