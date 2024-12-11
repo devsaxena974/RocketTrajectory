@@ -41,8 +41,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Rocket import Rocket
-from analysis import analyze_convergence, plot_convergence
+from src.Rocket import Rocket
+from src.analysis import analyze_convergence, plot_convergence
 
 class Simulation:
     # Constructor

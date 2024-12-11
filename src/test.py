@@ -3,8 +3,8 @@
 
         Test file to initialize rocket and simulator objects and run them
 '''
-from Rocket import Rocket
-from Simulation import Simulation
+from src.Rocket import Rocket
+from src.Simulation import Simulation
 
 def modelRocketTest1():
     rocket = Rocket(m=0.14175,

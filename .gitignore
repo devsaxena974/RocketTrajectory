@@ -1,1 +1,7 @@
-__pycache__
+__pycache__/
+inc/__pycache__/
+previous_files/__pycache__/
+
+writing/reviewA.docx
+writing/reviewB.docx
+writing/reviewC.docx

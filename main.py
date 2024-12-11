@@ -36,9 +36,9 @@ from matplotlib.backends.backend_qt5agg import (
 
 # Import everything needed for the simulation
 import matplotlib.pyplot as plt
-from Simulation import Simulation
-from Rocket import Rocket
-from analysis import analyze_convergence
+from src.Simulation import Simulation
+from src.Rocket import Rocket
+from src.analysis import analyze_convergence
 from inc.thrust_profiles import linear_thrust, quarter_thrust, V2_thrust_profile, hellfire_thrust_profile, patriot_thrust_profile, falcon1_thrust_profile
 
 # Preset rocket configs
