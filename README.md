@@ -56,8 +56,8 @@ Defines the `Rocket` class. Key features:
 - `thrust_at_time`: Computes thrust based on the current time and custom thrust profile.
 - `fuel_status`: Tracks remaining fuel and adjusts rocket mass.
 
-### `src/Simulation.py`
-Defines the `Simulation` class. Key features:
+### `src/RocketSimulation.py`
+Defines the `RocketSimulation` class. Key features:
 - Models rocket motion using the RK4 numerical integration method.
 - Calculates drag and air density dynamically.
 - Provides visualization and error analysis functions.
