@@ -1,10 +1,11 @@
+from src.Rocket import Rocket
+from src.RocketSimulation import RocketSimulation
+
 '''
     test
 
         Test file to initialize rocket and simulator objects and run them
 '''
-from src.Rocket import Rocket
-from src.Simulation import Simulation
 
 def modelRocketTest1():
     rocket = Rocket(m=0.14175,
@@ -14,7 +15,7 @@ def modelRocketTest1():
                         C_D=0.8,
                         A=0.0115)
     
-    sim = Simulation(rocket,
+    sim = RocketSimulation(rocket,
                       h_0=0.0,
                       v_0=0.0,
                       theta=90.0,
@@ -38,7 +39,7 @@ def modelRocketTest2():
                         A=0.004)
     
     # Now we create a simulator
-    sim2 = Simulation(rocket,
+    sim2 = RocketSimulation(rocket,
                       h_0=0.0,
                       v_0=0.0,
                       theta=90.0,
@@ -62,7 +63,7 @@ def SaturnVTest():
                         C_D = 0.80,
                         A = 34.3589)
     
-    sim = Simulation(SaturnV,
+    sim = RocketSimulation(SaturnV,
                       h_0=0.0,
                       v_0=0.0,
                       theta=90.0,
@@ -102,7 +103,7 @@ def V2Test():
         thrust_profile=V2_thrust_profile
     )
 
-    sim = Simulation(
+    sim = RocketSimulation(
         rocket = V2,
         h_0=0.0,
         v_0=0.0,

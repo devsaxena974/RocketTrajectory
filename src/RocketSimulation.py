@@ -1,50 +1,50 @@
-'''
-    Simulation Class
-    State Variables:
-        Rocket = rocket
-        Initial Altitude = h_0 (m)
-        Initial Velocity = v_0 (m/s)
-        Launch Angle = theta (degrees)
-        Air Density = rho (kg/m^2)
-        Air Temperature = temp (Kelvin)
-        Barometric Air Pressure = pressure (Pascals)
-        Gravitational Constant = G (m/s^2)
-        Step size = dt (s)
-        Simulation End Time = T (s)
-
-        Array to hold times = times []
-        Array to hold altitudes = altitudes []
-        Array to hold velocities = velocities []
-
-    Functions:
-        air_density(self, t, h):
-            Calculates the air density in the atmosphere based on rocket altitude
-
-        drag(self, v):
-            Calculate drag forces on the rocket at current velocity
-
-        f(self, t, h, v):
-            Computes velocity (dh/dt)
-
-        g(self, t, h, v):
-            Computes acceleration (dv/dt)
-
-        rk4_step(self, t, h, v):
-            Performs a single Runge-Kutta 4th order step
-
-        run(self):
-            Runs the simulation using rk4_step for the entire time duration
-
-        visualize(self):
-            Generates plots using simulation data
-'''
 import numpy as np
 import matplotlib.pyplot as plt
 
 from src.Rocket import Rocket
 from src.analysis import analyze_convergence, plot_convergence
 
-class Simulation:
+class RocketSimulation:
+    '''
+        Simulation Class
+        State Variables:
+            Rocket = rocket
+            Initial Altitude = h_0 (m)
+            Initial Velocity = v_0 (m/s)
+            Launch Angle = theta (degrees)
+            Air Density = rho (kg/m^2)
+            Air Temperature = temp (Kelvin)
+            Barometric Air Pressure = pressure (Pascals)
+            Gravitational Constant = G (m/s^2)
+            Step size = dt (s)
+            Simulation End Time = T (s)
+
+            Array to hold times = times []
+            Array to hold altitudes = altitudes []
+            Array to hold velocities = velocities []
+
+        Functions:
+            air_density(self, t, h):
+                Calculates the air density in the atmosphere based on rocket altitude
+
+            drag(self, v):
+                Calculate drag forces on the rocket at current velocity
+
+            f(self, t, h, v):
+                Computes velocity (dh/dt)
+
+            g(self, t, h, v):
+                Computes acceleration (dv/dt)
+
+            rk4_step(self, t, h, v):
+                Performs a single Runge-Kutta 4th order step
+
+            run(self):
+                Runs the simulation using rk4_step for the entire time duration
+
+            visualize(self):
+                Generates plots using simulation data
+    '''
     # Constructor
     def __init__(   self,
                     rocket: Rocket,

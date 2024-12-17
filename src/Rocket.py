@@ -1,30 +1,28 @@
-'''
-    Rocket Class
-    State Variables:
-        Rocket Mass = m (kg)
-        Max Engine Thrust = thrust (N)
-        Engine Burn Time = burn_time (s)
-        Fuel Mass = fuel_mass (kg)
-        Engine Burn Rate = fuel_mass / burn_time (kg/s)
-        Rocket Drag Coefficient = C_D (unitless)
-        Rocket Cross Sectional Nose Area = A (m^2)
-        Rocket Engine Thrust Profile = function()
-
-    Functions:
-        default_thrust_profile(t, burn_time, thrust):
-            Returns a default profile that decreases engine thrust linearly
-
-        thrust_at_time(t, dt):
-            Returns the thrust at time t based on burn rate and "thrust curve"
-
-        fuel_status(t, dt):
-            Returns the amount of engine fuel left
-'''
-
 import numpy as np
 
 class Rocket:
+    '''
+        Rocket Class
+        State Variables:
+            Rocket Mass = m (kg)
+            Max Engine Thrust = thrust (N)
+            Engine Burn Time = burn_time (s)
+            Fuel Mass = fuel_mass (kg)
+            Engine Burn Rate = fuel_mass / burn_time (kg/s)
+            Rocket Drag Coefficient = C_D (unitless)
+            Rocket Cross Sectional Nose Area = A (m^2)
+            Rocket Engine Thrust Profile = function()
 
+        Functions:
+            default_thrust_profile(t, burn_time, thrust):
+                Returns a default profile that decreases engine thrust linearly
+
+            thrust_at_time(t, dt):
+                Returns the thrust at time t based on burn rate and "thrust curve"
+
+            fuel_status(t, dt):
+                Returns the amount of engine fuel left
+    '''
     # Constructor
     def __init__(
                     self,
