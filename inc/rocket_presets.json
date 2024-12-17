@@ -18,8 +18,8 @@
         "thrust_profile": "quarter"
     },
     "V2 Rocket": {
-        "m": 4000.0,
-        "thrust": 2646000.0,
+        "m": 3500.0,
+        "thrust": 270000.0,
         "burn_time": 60.0,
         "fuel_mass": 8500.0,
         "C_D": 0.5,

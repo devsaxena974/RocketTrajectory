@@ -225,7 +225,7 @@ class RocketSimulatorGUI(QMainWindow):
         self.form_layout.addRow("Cross-Section Area (m²):", self.cross_section_input)
         self.form_layout.addRow("Initial Altitude (m):", self.altitude_input)
         self.form_layout.addRow("Initial Velocity (m/s):", self.velocity_input)
-        self.form_layout.addRow("Launch Angle (°):", self.angle_input)
+        #self.form_layout.addRow("Launch Angle (°):", self.angle_input)
         self.form_layout.addRow("Time Step (s):", self.time_step_input)
         self.form_layout.addRow("Simulation Duration (s):", self.sim_duration_input)
 
@@ -296,7 +296,7 @@ class RocketSimulatorGUI(QMainWindow):
             A = float(self.cross_section_input.text())
             h_0 = float(self.altitude_input.text())
             v_0 = float(self.velocity_input.text())
-            theta = float(self.angle_input.text())
+            #theta = float(self.angle_input.text())
             dt = float(self.time_step_input.text())
             T = float(self.sim_duration_input.text())
 
@@ -320,7 +320,7 @@ class RocketSimulatorGUI(QMainWindow):
 
             # Create Rocket and Simulation objects
             rocket = Rocket(m, thrust, burn_time, fuel_mass, C_D, A, thrust_profile=thrust_profile)
-            self.sim = RocketSimulation(rocket, h_0, v_0, theta, 288.15, 101325, dt, T)
+            self.sim = RocketSimulation(rocket, h_0, v_0, 90.0, 288.15, 101325, dt, T)
 
             # Run the simulation
             #self.sim.run()

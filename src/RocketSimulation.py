@@ -90,13 +90,14 @@ class RocketSimulation:
 
         # Calculate pressure using barometric formula
         exp = -self.G / (air_gas_const * temp_lapse_rate)
+        #print("exp value: ", exp)
         cur_pressure = pressure_sea_lvl * (cur_temp / temp_sea_lvl) ** exp
 
         # Calculate air density using ideal gas law
         rho = cur_pressure / (air_gas_const * cur_temp)
 
-        if rho < 0 or rho > 1.2:
-            print(f"Unrealistic air density: {rho}")
+        # if rho < 0 or rho > 1.2:
+        #     print(f"Unrealistic air density: {rho}")
 
         return max(0.0, rho)
     
@@ -126,12 +127,12 @@ class RocketSimulation:
         # else:
         #     F_net = -F_G - F_D
         F_net = F_T - F_G - F_D
-        print("Rocket Mass: ", self.rocket.m)
-        print("Drag force: ", F_D)
-        print("Grav force: ", F_G)
-        print("Thrust force: ", F_T)
-        print("Net force: ", F_net)
-        print("\n")
+        # print("Rocket Mass: ", self.rocket.m)
+        # print("Drag force: ", F_D)
+        # print("Grav force: ", F_G)
+        # print("Thrust force: ", F_T)
+        # print("Net force: ", F_net)
+        # print("\n")
 
         return F_net / self.rocket.m
     
@@ -175,7 +176,7 @@ class RocketSimulation:
                 print("Rocket has landed.")
                 break
 
-            print(f"Time: {t} Alt: {h} Velo: {v}")
+            #print(f"Time: {t} Alt: {h} Velo: {v}")
 
             self.times.append(t)
             self.altitudes.append(h)

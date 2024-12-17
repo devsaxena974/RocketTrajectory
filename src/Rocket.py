@@ -70,6 +70,6 @@ class Rocket:
     # Function to Calculate thrust at time t
     def thrust_at_time(self, t: float, dt: float):
         fuel = self.fuel_status(t, dt)
-        print("Time step: ", t)
+        #print("Time step: ", t)
         # Determine thrust at t based on thrust curve
         return self.thrust_profile(t, self.burn_time, self.thrust)
